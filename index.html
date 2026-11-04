@@ -241,6 +241,13 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: var(--canvas
 
 
 
+
+/* overview: reset all results */
+.reset-all { position: absolute; left: 72px; top: 830px; display: inline-flex; align-items: center; gap: 10px; padding: 9px 18px 9px 14px;
+  border-radius: 22px; border: 2px solid var(--ink); background: #fff; color: var(--ink); font: 700 18px/1 var(--sans); cursor: pointer; }
+.reset-all:hover, .reset-all:focus-visible { background: var(--yellow); outline: none; }
+.reset-all .ico { font-size: 15px; }
+
 /* quiz chart: right vs wrong per question */
 .res.quiz { gap: 26px; }
 .qrow { display: grid; grid-template-columns: 1fr 320px; column-gap: 24px; row-gap: 10px; align-items: center; }
@@ -415,11 +422,19 @@ body.presenter { overflow: auto; background: #f4f4f1; }
     <h1>AI for Study, Work and Career</h1>
     <p class="sub">One student, three situations, three questions</p>
     <p class="by">Rawal Karim</p>
+    <button class="reset-all" type="button" id="resetAll">${ico("FaUndo")}<span>Reset all results</span></button>
     <span class="panel-label" style="left:1022px;top:50px">Welcome</span>
     <span class="panel-label light" style="left:1176px;top:732px">Wrap-up</span>
     ${Object.values(TOPICS).map((t) => `<span class="topic-label" style="left:${t.lx}px;top:${t.ly}px">${ic(t.icon, "blue")}${t.label}</span>`).join("")}
     ${scene("desk", "ov-hero", 2)}`;
   world.appendChild(ov);
+  document.getElementById("resetAll").addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (!confirm("Reset all poll and quiz results?\n\nEvery poll and quiz will start again from zero, with new QR codes and links. Students who already answered can answer again.")) return;
+    if (!window.Live.resetAll()) { alert("This browser blocked the reset. Change sessionId in config.js instead."); return; }
+    try { sessionStorage.setItem("ai-session-was-reset", "1"); } catch (err) {}
+    location.reload();
+  });
 
   const frames = {};
   for (const [id, [ox, oy, rot]] of Object.entries(PLACE)) {
@@ -668,6 +683,7 @@ body.presenter { overflow: auto; background: #f4f4f1; }
   addEventListener("resize", () => go(step, true));
   function toast(msg) { const t = document.getElementById("toast"); t.textContent = msg; t.style.display = "block"; setTimeout(() => (t.style.display = "none"), 9000); }
   go(step, true);
+  try { if (sessionStorage.getItem("ai-session-was-reset")) { sessionStorage.removeItem("ai-session-was-reset"); toast("All results reset. Polls and quizzes now start from zero, with new links."); } } catch (err) {}
 
   function presenterView() {} // the presenter window is built by the next script
 })();

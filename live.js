@@ -2,7 +2,16 @@
 (function () {
   const cfg = window.SESSION_CONFIG || {};
   const enabled = !!(cfg.firebase && cfg.firebase.databaseURL);
-  const session = String(cfg.sessionId || "class-1").replace(/[^A-Za-z0-9_-]/g, "-");
+  const clean = (v) => String(v || "class-1").replace(/[^A-Za-z0-9_-]/g, "-");
+  const base = clean(cfg.sessionId);
+  const OVERRIDE = "ai-session-reset";
+  // Session in use: the one in the student's link, otherwise the presenter's latest reset, otherwise config.js.
+  let session = base;
+  const fromLink = new URLSearchParams(location.search).get("s");
+  if (fromLink) session = clean(fromLink);
+  else {
+    try { const o = JSON.parse(localStorage.getItem(OVERRIDE) || "null"); if (o && o.base === base && o.id) session = clean(o.id); } catch (e) {}
+  }
   const SDK = "https://www.gstatic.com/firebasejs/10.12.2/";
   let dbPromise = null;
 
@@ -28,6 +37,13 @@
   window.Live = {
     enabled,
     session,
+    // Start a fresh, empty set of results for every poll and quiz. Old answers stay in Firebase but are no longer shown.
+    resetAll() {
+      const d = new Date(), p = (n) => String(n).padStart(2, "0");
+      const id = `${base}-${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}`;
+      try { localStorage.setItem(OVERRIDE, JSON.stringify({ base, id })); } catch (e) { return false; }
+      return true;
+    },
     async submit(activity, answers) {
       const d = await db();
       if (!d) return false;
