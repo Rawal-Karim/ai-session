@@ -19,12 +19,13 @@ window.SESSION_CONFIG = {
   // Paste your Firebase web app config here to see live results on the slides
   // (see README.md, "Turn on live results"). Leave it as null to run without live results:
   // students can still answer, and quizzes still mark their answers, but nothing is collected.
-  firebase: null
-  // firebase: {
-  //   apiKey: "...",
-  //   authDomain: "your-project.firebaseapp.com",
-  //   databaseURL: "https://your-project-default-rtdb.firebaseio.com",
-  //   projectId: "your-project",
-  //   appId: "..."
-  // }
+  firebase: {
+    apiKey: "AIzaSyCALkmVjN4i-kHOTSF042_a26GysA0t14s",
+    authDomain: "ai-session-87fb8.firebaseapp.com",
+    databaseURL: "https://ai-session-87fb8-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "ai-session-87fb8",
+    storageBucket: "ai-session-87fb8.firebasestorage.app",
+    messagingSenderId: "44307718306",
+    appId: "1:44307718306:web:b112c592debe8b672e77fb"
+  }
 };
