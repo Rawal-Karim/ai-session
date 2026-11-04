@@ -1,0 +1,15 @@
+{
+  "rules": {
+    "sessions": {
+      "$session": {
+        ".read": true,
+        "$activity": {
+          "$response": {
+            ".write": "!data.exists() && newData.exists()",
+            ".validate": "newData.hasChildren(['answers', 't']) && newData.child('t').val() <= now"
+          }
+        }
+      }
+    }
+  }
+}
