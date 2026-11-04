@@ -10,7 +10,7 @@
 @font-face { font-family: "Caveat"; src: url("Caveat.ttf") format("truetype"); font-weight: 400 700; font-display: swap; }
 :root {
   --canvas: #d8d8d4; --paper: #fbfbf8; --ink: #141414; --grey: #6b6b66; --line: #c9c9c3;
-  --blue: #2346d8; --blue-soft: #9db0ff; --black: #000; --yellow: #f5d04a; --red: #d9432b;
+  --blue: #2346d8; --blue-soft: #9db0ff; --black: #000; --yellow: #f5d04a; --red: #d9432b; --good: #1f8a4c;
   --sans: "DM Sans", "Helvetica Neue", Arial, sans-serif; --hand: "Caveat", "Segoe Print", "Bradley Hand", cursive;
 }
 * { box-sizing: border-box; }
@@ -237,8 +237,25 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: var(--canvas
 .count .ico { color: var(--blue); }
 .live .count { display: flex; }
 .hint { font-size: 34px; color: var(--grey); margin-top: 10px !important; display: none; }
-.live:not(.revealed) .hint { display: block; }
+.live:not(.revealed) .hint { display: none; }
 
+
+
+/* quiz chart: right vs wrong per question */
+.res.quiz { gap: 26px; }
+.qrow { display: grid; grid-template-columns: 1fr auto; column-gap: 24px; row-gap: 10px; align-items: center; }
+.qrow .res-text { grid-column: 1 / -1; }
+.qbar { display: none; height: 26px; border-radius: 13px; overflow: hidden; background: #e8e8e3; }
+.qbar span { display: block; float: left; height: 100%; width: 0; transition: width .8s cubic-bezier(.2,.8,.2,1); }
+.qbar .ok { background: var(--good); }
+.qbar .bad { background: var(--red); }
+.qnums { display: none; gap: 18px; font-size: 24px; color: var(--grey); white-space: nowrap; }
+.qnums b { color: var(--ink); font-size: 28px; }
+.n-ok .ico { color: var(--good); } .n-bad .ico { color: var(--red); }
+.live .qbar { display: block; } .live .qnums { display: flex; }
+.qans { grid-column: 1 / -1; display: none; font-size: 24px; font-weight: 700; color: var(--good); margin-top: -2px !important; }
+.qans .ico { margin-right: 6px; }
+.revealed .qans { display: block; }
 
 /* online: copy link + AI interviewer chat window */
 .copy-link { margin-top: 14px; display: inline-flex; align-items: center; gap: 12px; font: 700 24px/1 var(--sans); padding: 14px 22px; border-radius: 30px;
@@ -335,7 +352,7 @@ body.presenter { overflow: auto; background: #f4f4f1; }
   Click any card in the overview to jump to it.
 </div></div>
 
-<script src="config.js"></script>
+<script>/* always load the newest settings, never a cached copy */ document.write('<script src="config.js?v=' + Date.now() + '"><\/script>');</script>
 <script src="activities.js"></script>
 <script src="notes.js"></script>
 <script src="qrcode.js"></script>
@@ -453,6 +470,18 @@ body.presenter { overflow: auto; background: #f4f4f1; }
       window.Live.listen(id, (responses) => {
         const n = responses.length;
         act.querySelector(".count span").textContent = n === 1 ? "1 answer" : `${n} answers`;
+        if (a.type === "quiz") {
+          act.querySelectorAll(".qrow").forEach((row, i) => {
+            const ok = responses.filter((r) => r[i] === a.questions[i].correct).length;
+            const answered = responses.filter((r) => r[i] !== undefined && r[i] !== null).length;
+            const bad = answered - ok;
+            row.querySelector(".ok").style.width = (answered ? (100 * ok) / answered : 0) + "%";
+            row.querySelector(".bad").style.width = (answered ? (100 * bad) / answered : 0) + "%";
+            row.querySelector(".n-ok b").textContent = ok;
+            row.querySelector(".n-bad b").textContent = bad;
+          });
+          return;
+        }
         act.querySelectorAll(".res-row").forEach((row, i) => {
           let pct = 0;
           if (n) {
