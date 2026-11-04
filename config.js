@@ -7,7 +7,7 @@ window.SESSION_CONFIG = {
 
   // Change this before each new class so the results start from zero.
   // Letters, numbers and hyphens only.
-  sessionId: "class-1",
+  sessionId: "class-2",
 
   // Countdown timers. false = each timer waits for you to click Start (or press T).
   // true = the timer starts by itself a moment after you arrive on the slide.
