@@ -39,7 +39,11 @@
     const a = window.ACTIVITIES[id];
     const isQuiz = a.type === "quiz";
     const rows = isQuiz
-      ? a.questions.map((q, i) => `<li class="res-row"><div class="res-text"><span class="qn">${i + 1}</span>${q.short}</div><div class="res-bar"><span></span></div><div class="res-pct"></div></li>`).join("")
+      ? a.questions.map((q, i) => `<li class="qrow">
+          <div class="res-text"><span class="qn">${i + 1}</span>${q.short}</div>
+          <div class="qbar"><span class="ok"></span><span class="bad"></span></div>
+          <div class="qnums"><span class="n-ok">${ico("FaCheck")} <b>0</b> right</span><span class="n-bad">${ico("FaTimes")} <b>0</b> wrong</span></div>
+          <p class="qans">${ico("FaCheckCircle")} Answer: ${q.options[q.correct]}</p></li>`).join("")
       : a.options.map((o) => `<li class="res-row"><div class="res-text">${o}</div><div class="res-bar"><span></span></div><div class="res-pct"></div></li>`).join("");
     return `
       <div class="act" data-activity="${id}" data-type="${a.type}">
@@ -55,7 +59,7 @@
           <h2 class="act-q">${isQuiz ? a.title + `<span class="sub">${a.questions.length} quick questions. Your phone tells you if you’re right.</span>` : a.question}</h2>
           <ul class="res ${isQuiz ? "quiz" : "poll"}">${rows}</ul>
           <p class="count">${ico("FaUsers")}<span></span></p>
-          ${isQuiz ? `<p class="hint hand">Results show when everyone’s done.</p>` : ""}
+          ${isQuiz ? `<p class="hint hand">Press R to show the right answers.</p>` : ""}
         </div>
       </div>`;
   }
